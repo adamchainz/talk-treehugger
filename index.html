@@ -1,0 +1,236 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <title>Treehugger</title>
+
+        <link rel="stylesheet" href="css/reveal.css">
+        <link rel="stylesheet" href="css/theme/black.css">
+
+        <!-- Theme used for syntax highlighting of code -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
+
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement( 'link' );
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+            document.getElementsByTagName( 'head' )[0].appendChild( link );
+        </script>
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+
+<section>
+    <h1>Treehugger: Keeping Secrets Secret on AWS</h1>
+    <h2>🌲</h2>
+    <h2>16 Mar 2017</h2>
+</section>
+
+
+<section>
+    <h2>Introduction : Time Out ⏰</h2>
+    <ul>
+        <li>Global platform for discovering the best things going on in cities around the world</li>
+        <li>Lots of traffic and use cases</li>
+    </ul>
+</section>
+<section>
+    <h2>Introduction : Time Out DevOps 💻</h2>
+    <ul>
+        <li>Maintaining dozens of applications</li>
+        <li>Partly on AWS - plenty of stuff there, but main platform being moved from Rackspace</li>
+        <li>Using Ansible, CloudFormation, and other AWS goodies</li>
+    </ul>
+</section>
+<section>
+    <h2>Introduction : Treehugger 🌲</h2>
+    <ul>
+        <li>Our way of managing environment variables</li>
+        <li>Allows mixing the non-secret ones with secret ones easily</li>
+    </ul>
+</section>
+<section>
+    <h2>Introduction : This Talk 📋</h2>
+    <ol>
+        <li>History 👵🏻</li>
+        <li>Concepts 🗯</li>
+        <li>Usage 🌝</li>
+    </ol>
+</section>
+
+
+<section>
+    <h1>History 👵🏻</h1>
+</section>
+<section>
+    <h2>History : Why? 😎</h2>
+    <ul>
+        <li>Secret management is <em>hard</em>.</li>
+        <li>Want them to be securely encrypted, stored durably, changes tracked, and decryption logged.</li>
+        <li>Permissions should be for fewest possible people to see them, but all the right people should be able to edit them.</li>
+        <li>Ideally with no extra infrastructure.</li>
+    </ul>
+</section>
+<section>
+    <h2>History : Tools 🔨</h2>
+    <ul>
+        <li>Plenty of tools out there, but none of them seemed to fit our goals exactly.</li>
+        <li>Desire: simplicity, tracking changes in git, easy privilege control</li>
+        <li>Let's look at two popular tools we considered...</li>
+    </ul>
+</section>
+<section>
+    <h2>History : Ansible Vault 🐄</h2>
+    <ul>
+        <li>Simple ✅</li>
+        <li>Too simple - one master password unlocks everything 😢</li>
+        <li>Encrypts whole file - so <code>git log</code> is a bit useless 😢</li>
+        <li>Have to put secrets and non-secrets in separate files 🤔</li>
+    </ul>
+</section>
+<section>
+    <h2>History : Credstash 🔒</h2>
+    <ul>
+        <li>Simple, key-value store ✅</li>
+        <li>Requires extra infrastructure (DynamoDB table) 🤔</li>
+        <li>No version control since not in files 😢</li>
+        <li>No non-secret storage 😢</li>
+    </ul>
+</section>
+<section>
+    <h2>History : Other Tools 🌎</h2>
+    <ul>
+        <li>Many exist</li>
+        <li>Most are based upon running infrastructure</li>
+        <li>...or don't allow using files in git</li>
+    </ul>
+</section>
+
+
+<section>
+    <h1>Concepts 🗯</h1>
+</section>
+<section>
+    <h2>Concepts : Background 🌱</h2>
+    <ul>
+        <li>Before I explain Treehugger, I need to cover some concepts:</li>
+        <li>12 Factor App 👩🏽‍💻</li>
+        <li>EC2 ☁️</li>
+        <li>KMS 🔑</li>
+    </ul>
+</section>
+<section>
+    <h2>Concepts : 12 Factor App 👩🏽‍💻</h2>
+    <ul>
+        <li>12 Rules from Heroku at <a href="https://12factor.net/">12factor.net</a></li>
+        <li>Key is factor 3:</li>
+    </ul>
+    <blockquote>
+        <p>The twelve-factor app stores config in environment variables</p>
+    </blockquote>
+</section>
+<section>
+    <h2>Concepts : EC2 ☁️</h2>
+    <ul>
+        <li>Elastic Compute Cloud</li>
+        <li>Instance = virtual machine</li>
+        <li>User Data - 64KB of data specified at machine launch - can be anything!</li>
+        <li>Sometimes a shell script, but we use just data to be more secure.</li>
+    </ul>
+</section>
+<section>
+    <h2>Concepts : KMS 🔑</h2>
+    <ul>
+        <li>Key Management Service</li>
+        <li>Symmetric Encryption ↔️</li>
+        <li>Key on their secure hardware</li>
+        <li>Strong access control through AWS IAM</li>
+        <li>AEAD</li>
+    </ul>
+</section>
+<section>
+    <h2>Concepts : AEAD 🔑</h2>
+    <ul>
+        <li><a href="https://aws.amazon.com/blogs/security/how-to-protect-the-integrity-of-your-encrypted-data-by-using-aws-key-management-service-and-encryptioncontext/">AWS security blog post</a></li>
+        <li>Authenticated Encryption + Associated Data</li>
+        <li>AE = encrypted data has a signature to prevent tampering</li>
+        <li>AD = encryption and decryption with extra data as context</li>
+    </ul>
+</section>
+<section>
+    <h2>Concepts : AD Example 🔑</h2>
+    <ul>
+        <li>Database with users' email addresses and encrypted physical addresses</li>
+    </ul>
+    <img src="img/encrypt.png" alt="">
+</section>
+<section>
+    <h2>Concepts : AD Example 🔑</h2>
+    <ul>
+        <li>Problem: attacker Alice can copy/paste her encrypted address into Bob's row and start receiving his packages</li>
+    </ul>
+    <img src="img/alice-replaces.png" alt="">
+</section>
+<section>
+    <h2>Concepts : AD Example 🔑</h2>
+    <ul>
+        <li>Solution: Associated Data = KMS Encryption Context</li>
+    </ul>
+    <img src="img/encrypt-context.png" alt="">
+</section>
+<section>
+    <h2>Concepts : AD Example 🔑</h2>
+    <ul>
+        <li>Decrypt can only succeed if Encryption Context is the same</li>
+    </ul>
+    <img src="img/decrypt-context.png" alt="">
+</section>
+<section>
+    <h2>Concepts : KMS Encryption Context 🔑</h2>
+    <ul>
+        <li>A (small) key-value map of strings to strings</li>
+        <li>Logged with each request</li>
+        <li>Can restrict access permissions to <code>Encrypt</code> & <code>Decrypt</code>, based upon key=value in context</li>
+        <li>e.g.</li>
+    </ul>
+<code><pre>{
+    "treehugger_app": "foobar",
+    "treehugger_stage": "prod",
+    "treehugger_var": "myvariable"
+}</pre></code>
+</section>
+
+
+<section>
+    <h1>Usage 🌝</h1>
+</section>
+
+
+<section>
+    <h2>Thank you!</h2>
+    <ul>
+        <li>Questions?</li>
+        <li><a href="https://github.com/timeoutdigital/treehugger">github.com/timeoutdigital/treehugger</a></p>
+    </ul>
+</section>
+
+
+            </div>
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.js"></script>
+
+        <script>
+            // More info https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                history: true,
+            });
+        </script>
+    </body>
+</html>
