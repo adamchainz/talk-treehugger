@@ -33,10 +33,18 @@
 
 
 <section>
+    <h2>Introduction : Me 🤦‍♂️</h2>
+    <ul>
+        <li>Адам Джонсон / Adam Johnson</li>
+        <li>Github <a href="https://github.com/adamchainz">adamchainz</a></li>
+        <li>DevOps Tech Lead at Time Out</li>
+    </ul>
+</section>
+<section>
     <h2>Introduction : Time Out ⏰</h2>
     <ul>
         <li>Global platform for discovering the best things going on in cities around the world</li>
-        <li>Lots of traffic and use cases</li>
+        <li>Lots of traffic and use cases = lots of applications</li>
     </ul>
 </section>
 <section>
@@ -207,15 +215,100 @@
 
 
 <section>
-    <h1>Usage 🌝</h1>
+    <h1>Using Treehugger 🌝</h1>
 </section>
-
+<section>
+    <h2>Usage : Requirements ✅</h2>
+    <ul>
+        <li>Python, 2.7 and 3.4+</li>
+        <li>Open Source, <code>pip install treehugger</code></li>
+        <li>Uses AWS through <code>boto3</code></li>
+    </ul>
+</section>
+<section>
+    <h2>Usage : 1. Variable Files 🗄</h2>
+    <ul>
+        <li>YAML dictionary of unencrypted and encrypted vars</li>
+        <li><code>TREEHUGGER_APP</code> and <code>TREEHUGGER_STAGE</code> required</li>
+    </ul>
+<pre><code>MY_ENCRYPTED_VAR: {encrypted: APECAHhVR772yuPViIZR9gdGaDgUU/blalba}
+MY_UNENCRYPTED_VAR: bar
+TREEHUGGER_APP: baz
+TREEHUGGER_STAGE: qux
+</code></pre>
+</section>
+<section>
+    <h2>Usage : 2. Edit Files 📝</h2>
+    <ul>
+        <li><code>treehugger edit vars.yml</code></li>
+        <li>Decrypt all to temp file, edit, re-encrypt and save</li>
+        <li>Would see in <code>$EDITOR</code> e.g.</li>
+    </ul>
+<pre><code>MY_ENCRYPTED_VAR: {to_encrypt: foo}
+MY_UNENCRYPTED_VAR: bar
+TREEHUGGER_APP: baz
+TREEHUGGER_STAGE: qux
+</code></pre>
+</section>
+<section>
+    <h2>Usage : 3. Execute Programs 🏃</h2>
+    <ul>
+        <li><code>treehugger exec -f vars.yml myapp</code></li>
+        <li>Decrypt all then replace self with program</li>
+        <li>e.g.</li>
+    </ul>
+<pre><code>$ treehugger exec -f vars.yml env | grep '^MY_'
+MY_ENCRYPTED_VAR=foo
+MY_UNENCRYPTED_VAR=bar
+</code></pre>
+</section>
+<section>
+    <h2>Usage : 4. User Data 👌</h2>
+    <ul>
+        <li>Read not from a file, but EC2 User Data by default</li>
+        <li>Can run without <code>-f</code> for this</li>
+        <li>e.g. <code>treehugger exec myapp</code></li>
+    </ul>
+</section>
+<section>
+    <h2>Usage : With CloudFormation ⛅️</h2>
+    <ul>
+        <li>File such as <code>vars.yml</code></li>
+        <li>All instances use an Auto Scaling Group</li>
+        <li>We put the contents of <code>vars.yml</code> into User Data in Cfn template</li>
+    </ul>
+</section>
+<section>
+    <h2>Usage : With CloudFormation ⛅️</h2>
+<pre><code>Resources:
+  LaunchConfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      # ...other properties...
+      UserData:
+        Fn::Base64:
+          !Sub
+          - |
+            treehugger:
+              ${TreehuggerUserData}
+              DATABASE_HOST: "${DatabaseHost}"
+          - DatabaseHost: !GetAtt Database.HostName</code></pre>
+</section>
+<section>
+    <h2>Usage : The Future 🚀</h2>
+    <ul>
+        <li>Other environments such as Lambda</li>
+        <li>Make editing easier e.g. preserve comments</li>
+        <li>Language specific helpers e.g. for php-fpm</li>
+    </ul>
+</section>
 
 <section>
     <h2>Thank you!</h2>
     <ul>
         <li>Questions?</li>
-        <li><a href="https://github.com/timeoutdigital/treehugger">github.com/timeoutdigital/treehugger</a></p>
+        <li>Treehugger <a href="https://github.com/timeoutdigital/treehugger">github.com/timeoutdigital/treehugger</a></p>
+        <li>Slides <a href="https://github.com/adamchainz/talk-treehugger">github.com/adamchainz/talk-treehugger</a></p>
     </ul>
 </section>
 
