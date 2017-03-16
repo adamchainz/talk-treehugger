@@ -48,26 +48,26 @@
     </ul>
 </section>
 <section>
-    <h2>Introduction : Time Out DevOps 💻</h2>
+    <h2>Introduction : Time Out DevOps&nbsp;💻</h2>
     <ul>
         <li>Maintaining dozens of applications</li>
-        <li>Partly on AWS - plenty of stuff there, but main platform being moved from Rackspace</li>
+        <li>Partly on AWS, old stuff on Rackspace</li>
         <li>Using Ansible, CloudFormation, and other AWS goodies</li>
     </ul>
 </section>
 <section>
     <h2>Introduction : Treehugger 🌲</h2>
     <ul>
-        <li>Our way of managing environment variables</li>
-        <li>Allows mixing the non-secret ones with secret ones easily</li>
+        <li>Our way of managing environment variables on AWS</li>
+        <li>Allows mixing secrets with non-secrets</li>
     </ul>
 </section>
 <section>
     <h2>Introduction : This Talk 📋</h2>
     <ol>
-        <li>History 👵🏻</li>
-        <li>Concepts 🗯</li>
-        <li>Usage 🌝</li>
+        <li>History&nbsp;👵🏻</li>
+        <li>Concepts&nbsp;🗯</li>
+        <li>Usage&nbsp;🌝</li>
     </ol>
 </section>
 
@@ -98,14 +98,14 @@
         <li>Simple ✅</li>
         <li>Too simple - one master password unlocks everything 😢</li>
         <li>Encrypts whole file - so <code>git log</code> is a bit useless 😢</li>
-        <li>Have to put secrets and non-secrets in separate files 🤔</li>
+        <li>Have to put secrets and non-secrets in separate files&nbsp;🤔</li>
     </ul>
 </section>
 <section>
     <h2>History : Credstash 🔒</h2>
     <ul>
-        <li>Simple, key-value store ✅</li>
-        <li>Requires extra infrastructure (DynamoDB table) 🤔</li>
+        <li>Simple, key-value store&nbsp;✅</li>
+        <li>Requires extra infrastructure (DynamoDB table)&nbsp;🤔</li>
         <li>No version control since not in files 😢</li>
         <li>No non-secret storage 😢</li>
     </ul>
@@ -164,10 +164,10 @@
 <section>
     <h2>Concepts : AEAD 🔑</h2>
     <ul>
-        <li><a href="https://aws.amazon.com/blogs/security/how-to-protect-the-integrity-of-your-encrypted-data-by-using-aws-key-management-service-and-encryptioncontext/">AWS security blog post</a></li>
         <li>Authenticated Encryption + Associated Data</li>
         <li>AE = encrypted data has a signature to prevent tampering</li>
         <li>AD = encryption and decryption with extra data as context</li>
+        <li><a href="https://aws.amazon.com/blogs/security/how-to-protect-the-integrity-of-your-encrypted-data-by-using-aws-key-management-service-and-encryptioncontext/">AWS security blog post</a></li>
     </ul>
 </section>
 <section>
@@ -240,8 +240,8 @@ TREEHUGGER_STAGE: qux
 <section>
     <h2>Usage : 2. Edit Files 📝</h2>
     <ul>
-        <li><code>treehugger edit vars.yml</code></li>
         <li>Decrypt all to temp file, edit, re-encrypt and save</li>
+        <li><code>treehugger edit vars.yml</code></li>
         <li>Would see in <code>$EDITOR</code> e.g.</li>
     </ul>
 <pre><code>MY_ENCRYPTED_VAR: {to_encrypt: foo}
@@ -253,7 +253,6 @@ TREEHUGGER_STAGE: qux
 <section>
     <h2>Usage : 3. Execute Programs 🏃</h2>
     <ul>
-        <li><code>treehugger exec -f vars.yml myapp</code></li>
         <li>Decrypt all then replace self with program</li>
         <li>e.g.</li>
     </ul>
